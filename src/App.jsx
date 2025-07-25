@@ -1,38 +1,82 @@
-import { useEffect, useState } from 'react';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import "./App.css";
 
 const App = () => {
-  const [fake, setFake] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    fakestore();
+    fetch("https://fakestoreapi.com/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data));
   }, []);
 
-  const fakestore = async () => {
-    const response = await fetch("https://fakestoreapi.com/products");
-    const jsonData = await response.json();
-    setFake(jsonData);
+  const handleAddToCart = (product) => {
+    const exists = cart.find((item) => item.id === product.id);
+    if (exists) {
+      alert("Item already added to the cart");
+    } else {
+      setCart([...cart, product]);
+    }
+  };
+
+  const handleRemoveFromCart = (id) => {
+    setCart(cart.filter((item) => item.id !== id));
   };
 
   return (
-    <>
-      <h1>Fake API Store</h1>
-      <div className="container">
-        {fake.map((values) => (
-          <div className="box" key={values.id}>
-            <div className="content">
-              <h5>{values.title}</h5>
-              <p>{values.description}</p>
-            </div>
-            <img src={values.image} alt={values.title} />
+    <div className="app">
+      {/* Navbar */}
+      <nav className="navbar">
+        <h1 className="logo">🛒 FakeStore</h1>
+        <button className="cart-button" onClick={() => setIsModalOpen(true)}>
+          Cart ({cart.length})
+        </button>
+      </nav>
+
+      {/* Product Grid */}
+      <div className="product-grid">
+        {products.map((product) => (
+          <div className="product-card" key={product.id}>
+            <img src={product.image} alt={product.title} className="product-img" />
+            <h2 className="product-title">{product.title}</h2>
+            <p className="product-price">${product.price}</p>
+            <button className="add-btn" onClick={() => handleAddToCart(product)}>
+              Add to Cart
+            </button>
           </div>
         ))}
       </div>
-    </>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <button className="close-btn" onClick={() => setIsModalOpen(false)}>✖</button>
+            <h2 className="modal-title">🛍️ Cart Items</h2>
+            {cart.length === 0 ? (
+              <p>Your cart is empty.</p>
+            ) : (
+              cart.map((item) => (
+                <div key={item.id} className="cart-item">
+                  <img src={item.image} alt="" className="cart-item-img" />
+                  <p className="cart-item-title">{item.title}</p>
+                  <p className="cart-item-price">${item.price}</p>
+                  <button
+                    className="remove-btn"
+                    onClick={() => handleRemoveFromCart(item.id)}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
 export default App;
-
-
-
