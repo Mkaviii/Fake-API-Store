@@ -161,7 +161,7 @@ body {
   background-color: #dc2626;
 }
 
-/* Responsive (Optional) */
+/* Responsive  */
 @media (max-width: 600px) {
   .cart-item-title {
     font-size: 0.8rem;
